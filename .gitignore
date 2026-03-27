@@ -1,0 +1,10 @@
+results/
+evaluation_state.json
+__pycache__/
+*.pyc
+.DS_Store
+conditioning/*/base/
+conditioning/*/junk/
+.env
+*.log
+.owlex/

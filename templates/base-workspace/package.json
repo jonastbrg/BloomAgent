@@ -1,0 +1,9 @@
+{
+  "name": "bloomagent-base-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node -e \"console.log('no tests configured')\""
+  }
+}
