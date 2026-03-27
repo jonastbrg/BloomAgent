@@ -1,11 +1,9 @@
 """Evaluation state. Disk-based, resumable."""
 import json
 from datetime import datetime
-from pathlib import Path
 from typing import Any
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
-STATE_FILE = REPO_ROOT / "evaluation_state.json"
+from src.runtime import get_state_file
 
 
 def _now() -> str:
@@ -26,35 +24,40 @@ def _default_state() -> dict[str, Any]:
 
 def _ensure_probe_record(state: dict[str, Any], probe: str) -> dict[str, Any]:
     probes = state.setdefault("probes", {})
-    return probes.setdefault(
-        probe,
-        {
-            "stage": "understanding",
-            "completed_stages": [],
-            "scenario_count": 0,
-            "models": [],
-            "conditions": [],
-            "reps": 1,
-            "last_updated": None,
-        },
-    )
+    record = probes.setdefault(probe, {})
+    if not isinstance(record, dict):
+        record = {}
+        probes[probe] = record
+    record.setdefault("stage", "understanding")
+    record.setdefault("completed_stages", [])
+    record.setdefault("scenario_count", 0)
+    record.setdefault("models", [])
+    record.setdefault("conditions", [])
+    record.setdefault("reps", 1)
+    record.setdefault("last_updated", None)
+    return record
 
 
 def load_state() -> dict:
-    if STATE_FILE.exists():
-        raw = json.loads(STATE_FILE.read_text())
+    state_file = get_state_file()
+    if state_file.exists():
+        raw = json.loads(state_file.read_text())
         state = _default_state()
         state.update(raw)
         state.setdefault("probes", {})
         state.setdefault("trials", {})
         state.setdefault("pending_judgments", [])
+        for probe_name in list(state["probes"].keys()):
+            _ensure_probe_record(state, probe_name)
         return state
     return _default_state()
 
 
 def save_state(state: dict[str, Any]) -> None:
     state["last_updated"] = _now()
-    STATE_FILE.write_text(json.dumps(state, indent=2))
+    state_file = get_state_file()
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+    state_file.write_text(json.dumps(state, indent=2))
 
 
 def initialize_probe(

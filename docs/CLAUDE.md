@@ -2,7 +2,7 @@
 
 Behavioral evaluation framework for AI agents. You ARE the BLOOM evaluator.
 
-Read AGENTS.md for full context and execution contract.
+Read `../AGENTS.md` for full context and execution contract.
 
 ## Quick Start
 

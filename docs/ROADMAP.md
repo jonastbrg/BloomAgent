@@ -4,6 +4,19 @@ BloomAgent is intentionally narrower than upstream BLOOM today: it focuses on
 real coding-agent behavior in local workspaces. The next capabilities to add
 should preserve that focus while borrowing mature ideas from BLOOM.
 
+## Recommended Order
+
+The next three things to build are:
+
+1. Probe validation plus stronger CLI support.
+Reason: it reduces user error immediately and makes the repo feel installable rather than session-dependent.
+
+2. An end-to-end smoke evaluation path.
+Reason: once the repo can demonstrate one deterministic miniature run, every later capability becomes easier to test and explain.
+
+3. Trace/result interoperability with upstream BLOOM concepts.
+Reason: export adapters and variation dimensions make BloomAgent easier to compare, present, and potentially upstream in pieces.
+
 ## Near-Term
 
 - Expand the new `bloomagent` CLI beyond `init`, `list-probes`, and

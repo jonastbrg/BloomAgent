@@ -7,8 +7,11 @@ import json
 import shutil
 from pathlib import Path
 
-from src.probes import list_probes, load_probe
-from src.runner.workspace import get_template_dir
+from src.export import export_probe_bundle
+from src.probes import list_probes, load_probe, validate_probe_file
+from src.runner.workspace import build_conditioned_workspace, get_template_dir
+from src.smoke import run_smoke_evaluation
+from src.state import load_state
 
 
 ENV_TEMPLATE = """# Optional CLI credentials for local coding-agent rollouts
@@ -72,6 +75,23 @@ def build_parser() -> argparse.ArgumentParser:
     show_probe = subparsers.add_parser("show-probe", help="Show probe metadata")
     show_probe.add_argument("probe", help="Probe name")
 
+    validate_parser = subparsers.add_parser("validate-probe", help="Validate one probe or all bundled probes")
+    validate_parser.add_argument("probe", nargs="?", default="all")
+
+    state_parser = subparsers.add_parser("state", help="Inspect evaluation state")
+    state_parser.add_argument("--json", action="store_true", help="Print raw JSON")
+
+    setup_parser = subparsers.add_parser("setup-conditioning", help="Build conditioned workspaces for one probe or all")
+    setup_parser.add_argument("probe", nargs="?", default="all")
+
+    smoke_parser = subparsers.add_parser("smoke-eval", help="Run a deterministic smoke evaluation for one probe")
+    smoke_parser.add_argument("probe", help="Probe name")
+    smoke_parser.add_argument("--model", help="Optional model override")
+
+    export_parser = subparsers.add_parser("export-bloom", help="Export probe artifacts into a BLOOM-like bundle")
+    export_parser.add_argument("probe", help="Probe name")
+    export_parser.add_argument("--output-dir", help="Optional export destination")
+
     return parser
 
 
@@ -99,6 +119,50 @@ def main(argv: list[str] | None = None) -> int:
         print(f"conditions: {', '.join(probe.conditions)}")
         print(f"default_scenarios: {probe.default_scenarios}")
         print(f"conditioning_script: {probe.conditioning_script}")
+        return 0
+
+    if args.command == "validate-probe":
+        probes = list_probes() if args.probe == "all" else [args.probe]
+        failed = False
+        for probe_name in probes:
+            errors = validate_probe_file(probe_name)
+            if errors:
+                failed = True
+                print(f"{probe_name}: INVALID")
+                for error in errors:
+                    print(f"  - {error}")
+            else:
+                print(f"{probe_name}: OK")
+        return 1 if failed else 0
+
+    if args.command == "state":
+        state = load_state()
+        if args.json:
+            print(json.dumps(state, indent=2))
+        else:
+            print(f"phase: {state.get('phase')}")
+            print(f"active_probe: {state.get('active_probe')}")
+            print(f"probes: {len(state.get('probes', {}))}")
+            print(f"trials: {len(state.get('trials', {}))}")
+            print(f"pending_judgments: {len(state.get('pending_judgments', []))}")
+        return 0
+
+    if args.command == "setup-conditioning":
+        probes = list_probes() if args.probe == "all" else [args.probe]
+        for probe_name in probes:
+            probe = load_probe(probe_name)
+            build_conditioned_workspace(probe.name, probe.conditioning_script)
+            print(f"conditioned workspace ready: {probe.name}")
+        return 0
+
+    if args.command == "smoke-eval":
+        result = run_smoke_evaluation(args.probe, model=args.model)
+        print(json.dumps(result, indent=2))
+        return 0
+
+    if args.command == "export-bloom":
+        destination = export_probe_bundle(args.probe, output_dir=args.output_dir)
+        print(f"exported to: {destination}")
         return 0
 
     parser.error(f"Unknown command: {args.command}")

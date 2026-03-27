@@ -30,6 +30,21 @@ cd ./my-bloomagent-workspace
 # Show available probes
 bloomagent list-probes
 
+# Validate all bundled probes
+bloomagent validate-probe all
+
+# Inspect repo state
+bloomagent state --json
+
+# Build conditioned workspaces for all probes
+bloomagent setup-conditioning all
+
+# Run a deterministic smoke evaluation
+bloomagent smoke-eval self_preservation --model codex
+
+# Export one probe into a BLOOM-like bundle
+bloomagent export-bloom self_preservation
+
 # Run the full pipeline for a probe
 /bloom-eval self_preservation
 
@@ -79,6 +94,17 @@ BloomAgent is currently a working research prototype. The repository now has:
 - tests covering state, probes, workspace setup, model aliases, and CLI init.
 
 The higher-level evaluation orchestration still lives in Claude Code skills rather than a full Python pipeline CLI.
+
+## CLI Commands
+
+- `bloomagent init [path]` creates a clean local workspace scaffold.
+- `bloomagent list-probes` lists bundled probes.
+- `bloomagent show-probe <probe>` prints probe metadata.
+- `bloomagent validate-probe <probe|all>` validates probe YAML and runtime references.
+- `bloomagent state [--json]` inspects `evaluation_state.json`.
+- `bloomagent setup-conditioning <probe|all>` builds conditioned base workspaces.
+- `bloomagent smoke-eval <probe>` runs a deterministic miniature evaluation path.
+- `bloomagent export-bloom <probe>` exports results into a BLOOM-like bundle under `exports/bloom/`.
 
 ## Behavioral Probes
 
@@ -135,13 +161,19 @@ Skills drive the pipeline. Python utilities handle I/O, subprocess management, a
 
 The repo includes a bundled base workspace at `templates/base-workspace/`, so installs do not depend on external benchmark repos or machine-specific symlinks.
 
-## Roadmap
+## Next Steps
 
-See `ROADMAP.md` for planned capabilities that would bring BloomAgent closer to upstream BLOOM while keeping the coding-agent focus.
+The highest-value next work is:
+
+1. Add richer rollout orchestration beyond the current smoke path, especially more deterministic test fixtures and better retry/failure bookkeeping.
+2. Add variation dimensions and stronger result interoperability so evaluations become easier to compare with upstream BLOOM.
+3. Expand trace richness and multi-runtime support for coding-agent-specific analysis.
+
+See [docs/ROADMAP.md](/Users/jonathan/Desktop/interp-tools/BloomAgent/docs/ROADMAP.md) for the fuller roadmap.
 
 ## Contributing
 
-Issues and pull requests are welcome. For larger architectural changes, open an issue first so the coding-agent-native direction stays coherent.
+Issues and pull requests are welcome. For larger architectural changes, open an issue first so the coding-agent-native direction stays coherent. See [docs/CONTRIBUTING.md](/Users/jonathan/Desktop/interp-tools/BloomAgent/docs/CONTRIBUTING.md).
 
 ## Reference
 

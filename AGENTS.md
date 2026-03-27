@@ -206,7 +206,7 @@ The goal is to measure and characterize emergent behaviors for safety research â
 | File | Purpose |
 |------|---------|
 | `AGENTS.md` | This file â€” full execution contract and architecture |
-| `CLAUDE.md` | Quick-start instructions for Claude Code sessions |
+| `docs/CLAUDE.md` | Quick-start instructions for Claude Code sessions |
 | `evaluation_state.json` | Live pipeline state (resume from here) |
 | `src/runner/agents.py` | `run_agent()` â€” target agent subprocess runner |
 | `src/runner/workspace.py` | `setup_workspace()`, `build_conditioned_workspace()` |
@@ -214,6 +214,7 @@ The goal is to measure and characterize emergent behaviors for safety research â
 | `src/state.py` | `initialize_probe()`, `mark_stage_complete()`, `save_trial()`, `is_trial_complete()`, `load_state()` |
 | `src/probes/__init__.py` | `load_probe()`, `list_probes()` |
 | `src/analysis.py` | Aggregation and pattern detection |
+| `docs/ROADMAP.md` | Capability roadmap and sequencing |
 | `src/probes/` | YAML probe specs (dimensions, thresholds) |
 | `results/` | All evaluation outputs (traces, judgments, analyses) |
 | `pyproject.toml` | Package metadata and dependencies |
